@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f8f4">
+  <meta name="description" content="Make more of what you already have. Find recipes, manage your pantry, and build a smart shopping list with PantryChef.">
+  <title>PantryChef — Make more of what you have</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17231d;
+      --muted: #718078;
+      --paper: #f7f8f4;
+      --card: #fff;
+      --line: #e9ede7;
+      --green: #246b4b;
+      --green-dark: #1c563c;
+      --green-soft: #eaf3eb;
+      --orange: #ee9b55;
+      --orange-soft: #fff2e5;
+      --red: #c94b42;
+      --red-soft: #fff0ed;
+      --shadow: 0 8px 28px rgba(29, 54, 38, .055);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { min-height: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--paper); color: var(--ink);
+      user-select: none; -webkit-user-select: none; padding-bottom: calc(90px + env(safe-area-inset-bottom));
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #a3d0b2; outline-offset: 2px; }
+    .app-shell { max-width: 760px; margin: 0 auto; padding: 0 18px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 19px 0 15px; }
+    .brand { display: flex; gap: 10px; align-items: center; font-weight: 850; letter-spacing: -.65px; font-size: 20px; }
+    .brand-mark { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 13px; background: var(--green); color: white; font-size: 21px; }
+    .top-count { padding: 8px 11px; border-radius: 999px; background: white; border: 1px solid var(--line); color: var(--muted); font-size: 12px; font-weight: 700; }
+    .hero { position: relative; overflow: hidden; background: var(--green); color: white; border-radius: 24px; padding: 24px 22px 23px; box-shadow: var(--shadow); }
+    .hero::after { content: "🥬"; position: absolute; right: 21px; bottom: -12px; font-size: 92px; opacity: .17; transform: rotate(-15deg); pointer-events: none; }
+    .eyebrow { margin: 0 0 9px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; opacity: .78; }
+    .hero h1 { position: relative; z-index: 1; max-width: 390px; margin: 0; font-size: clamp(27px, 7vw, 36px); line-height: 1.08; letter-spacing: -1.3px; }
+    .hero p:last-child { position: relative; z-index: 1; max-width: 310px; margin: 11px 0 0; color: #e0eee4; font-size: 13px; line-height: 1.5; }
+    .content-section { padding-top: 24px; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin: 0 1px 13px; }
+    .section-head h2 { margin: 0; font-size: 19px; letter-spacing: -.45px; }
+    .section-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .text-button { border: 0; padding: 8px 2px; color: var(--green); background: transparent; font-weight: 750; font-size: 12px; cursor: pointer; }
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 19px; padding: 16px; box-shadow: var(--shadow); }
+    .category-title { margin: 15px 0 8px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
+    .category-title:first-child { margin-top: 0; }
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ingredient-chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 11px; background: #fff; color: #3f5146; font-size: 12px; font-weight: 650; cursor: pointer; transition: .16s ease; }
+    .ingredient-chip:hover { border-color: #a5c5ad; background: #f5faf5; }
+    .ingredient-chip.selected { color: var(--green-dark); border-color: #c9dfce; background: var(--green-soft); }
+    .ingredient-chip.selected::before { content: "✓"; font-weight: 900; }
+    .custom-form { display: flex; gap: 8px; margin-top: 17px; }
+    .field { min-width: 0; width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; background: #fbfcfa; color: var(--ink); font-size: 13px; outline: none; user-select: text; -webkit-user-select: text; }
+    .field::placeholder { color: #9aa59e; }
+    .primary-button { border: 0; border-radius: 12px; padding: 0 16px; min-height: 44px; background: var(--green); color: white; font-size: 12px; font-weight: 800; white-space: nowrap; cursor: pointer; transition: background .15s, transform .15s; }
+    .primary-button:hover { background: var(--green-dark); }
+    .primary-button:active, .secondary-button:active, .ingredient-chip:active { transform: scale(.97); }
+    .toolbar { display: flex; gap: 9px; margin-bottom: 12px; }
+    .search-wrap { position: relative; flex: 1; }
+    .search-wrap .field { padding-left: 36px; background: white; }
+    .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #829087; pointer-events: none; font-size: 14px; }
+    .select-field { border: 1px solid var(--line); border-radius: 12px; padding: 0 11px; background: white; color: #44564a; font-size: 12px; font-weight: 700; }
+    .pantry-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pantry-item { display: flex; align-items: center; gap: 7px; border: 1px solid #dce9de; border-radius: 999px; background: #f3f8f3; padding: 7px 8px 7px 11px; font-size: 12px; font-weight: 650; }
+    .remove-item { width: 22px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #7f8d84; cursor: pointer; font-size: 16px; }
+    .remove-item:hover { background: #e4eee5; color: var(--red); }
+    .empty-state { padding: 20px 10px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .empty-state strong { display: block; margin-bottom: 4px; color: var(--ink); font-size: 14px; }
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0 3px; }
+    .stat-card { border: 1px solid var(--line); border-radius: 15px; background: white; padding: 13px 14px; }
+    .stat-number { display: block; font-size: 22px; font-weight: 850; letter-spacing: -.8px; }
+    .stat-label { color: var(--muted); font-size: 11px; font-weight: 650; }
+    .filter-row { display: flex; gap: 7px; overflow-x: auto; padding: 2px 1px 10px; scrollbar-width: none; }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-button { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; background: white; color: #637168; font-size: 11px; font-weight: 750; cursor: pointer; }
+    .filter-button.active { border-color: var(--green); background: var(--green); color: white; }
+    .recipe-list { display: grid; gap: 12px; }
+    .recipe-card { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: white; box-shadow: var(--shadow); }
+    .recipe-main { padding: 15px; }
+    .recipe-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 9px; }
+    .recipe-title-group { display: flex; gap: 10px; align-items: center; min-width: 0; }
+    .recipe-emoji { width: 43px; height: 43px; flex: 0 0 43px; display: grid; place-items: center; border-radius: 14px; background: #f5f3e9; font-size: 23px; }
+    .recipe-title { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.3px; }
+    .recipe-subtitle { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .match-badge { flex: 0 0 auto; border-radius: 999px; padding: 6px 8px; font-size: 10px; font-weight: 850; white-space: nowrap; }
+    .match-badge.ready { background: var(--green-soft); color: var(--green-dark); }
+    .match-badge.almost { background: var(--orange-soft); color: #965019; }
+    .recipe-meta { display: flex; gap: 13px; margin: 13px 0 11px; color: #647269; font-size: 11px; font-weight: 650; }
+    .match-line { display: flex; justify-content: space-between; margin-bottom: 6px; color: #6c7a70; font-size: 10px; font-weight: 700; }
+    .progress-track { height: 5px; overflow: hidden; border-radius: 9px; background: #edf0ec; }
+    .progress-fill { height: 100%; border-radius: inherit; background: #59a777; }
+    .recipe-ingredients { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
+    .recipe-ingredient { border-radius: 7px; padding: 5px 7px; background: #f1f5f1; color: #536157; font-size: 10px; font-weight: 650; }
+    .recipe-ingredient.missing { background: var(--red-soft); color: var(--red); }
+    .recipe-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .secondary-button { display: inline-flex; justify-content: center; align-items: center; min-height: 39px; border: 1px solid var(--line); border-radius: 11px; padding: 0 12px; background: white; color: #435449; font-size: 11px; font-weight: 750; cursor: pointer; }
+    .secondary-button.add-missing { border-color: #cce0d0; background: #f3f8f3; color: var(--green-dark); }
+    .recipe-details { display: none; border-top: 1px solid var(--line); background: #fcfdfa; padding: 13px 16px 16px; }
+    .recipe-details.open { display: block; }
+    .recipe-details h4 { margin: 0 0 8px; font-size: 12px; }
+    .recipe-details ol { margin: 0; padding-left: 19px; color: #59675e; font-size: 12px; line-height: 1.65; }
+    .shopping-list { display: grid; gap: 8px; }
+    .shopping-item { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 13px; background: white; padding: 11px 12px; }
+    .shopping-item input { width: 19px; height: 19px; accent-color: var(--green); cursor: pointer; }
+    .shopping-item label { flex: 1; font-size: 13px; font-weight: 650; cursor: pointer; }
+    .shopping-item.checked label { color: #8b968f; text-decoration: line-through; }
+    .shopping-source { display: block; margin-top: 3px; color: #8a968e; font-size: 10px; font-weight: 500; }
+    .shopping-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+    .danger-button { color: var(--red); }
+    .toast { position: fixed; z-index: 20; left: 50%; bottom: calc(93px + env(safe-area-inset-bottom)); transform: translate(-50%, 12px); max-width: calc(100vw - 36px); border-radius: 999px; padding: 11px 16px; background: #203c2c; color: white; font-size: 12px; font-weight: 700; box-shadow: 0 8px 25px #12251936; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .bottom-nav { position: fixed; z-index: 10; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(3, 1fr); padding: 8px max(13px, calc((100vw - 560px) / 2)) calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid #e7ebe5; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); }
+    .nav-button { position: relative; display: grid; justify-items: center; gap: 3px; min-height: 54px; border: 0; border-radius: 13px; background: transparent; color: #87928a; font-size: 10px; font-weight: 750; cursor: pointer; }
+    .nav-button.active { color: var(--green); }
+    .nav-icon { font-size: 19px; line-height: 1; }
+    .nav-badge { position: absolute; top: -1px; left: calc(50% + 7px); min-width: 16px; height: 16px; display: grid; place-items: center; border: 2px solid white; border-radius: 99px; padding: 0 3px; background: var(--orange); color: white; font-size: 8px; }
+    .hidden { display: none !important; }
+    @media (min-width: 640px) {
+      .app-shell { padding: 0 28px; }
+      .hero { padding: 30px 29px; }
+      .content-section { padding-top: 28px; }
+      .recipe-list { grid-template-columns: 1fr 1fr; align-items: start; }
+      .recipe-card { height: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">♨</span><span>PantryChef</span></div>
+      <div class="top-count" id="header-count">0 ingredients</div>
+    </header>
+
+    <main>
+      <div class="hero">
+        <p class="eyebrow">A little less waste. A lot more delicious.</p>
+        <h1>Good food starts with what you have.</h1>
+        <p>Add what’s in your kitchen and let’s find something wonderful to make.</p>
+      </div>
+
+      <section class="content-section" id="pantry-section" aria-labelledby="pantry-heading">
+        <div class="section-head">
+          <div><h2 id="pantry-heading">Your pantry</h2><p>Tap ingredients to add them to your kitchen.</p></div>
+        </div>
+        <div class="panel">
+          <div id="quick-add-groups"></div>
+          <form class="custom-form" id="custom-form">
+            <input class="field" id="custom-ingredient" type="text" maxlength="40" placeholder="Add something else…" aria-label="Custom ingredient" autocomplete="off">
+            <button class="primary-button" type="submit">＋ Add</button>
+          </form>
+        </div>
+
+        <div class="section-head" style="margin-top:22px">
+          <div><h2>In your kitchen <span id="pantry-number"></span></h2><p>Keep your list up to date for better matches.</p></div>
+        </div>
+        <div class="toolbar">
+          <label class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><input class="field" id="pantry-search" type="search" placeholder="Search ingredients" aria-label="Search pantry ingredients"></label>
+          <select class="select-field" id="pantry-filter" aria-label="Filter pantry by category"><option value="all">All</option></select>
+        </div>
+        <div class="panel">
+          <div class="pantry-list" id="pantry-list"></div>
+          <div class="empty-state hidden" id="pantry-empty"><strong>Your pantry is ready for a first ingredient.</strong>Tap a quick-add chip above or add a custom ingredient.</div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><span class="stat-number" id="ready-stat">0</span><span class="stat-label">recipes ready to cook</span></div>
+          <div class="stat-card"><span class="stat-number" id="almost-stat">0</span><span class="stat-label">almost there</span></div>
+        </div>
+      </section>
+
+      <section class="content-section hidden" id="recipes-section" aria-labelledby="recipes-heading">
+        <div class="section-head"><div><h2 id="recipes-heading">Recipes for you</h2><p>Matched to what’s already in your pantry.</p></div></div>
+        <div class="filter-row" id="recipe-filters" role="group" aria-label="Filter recipes">
+          <button class="filter-button active" data-filter="all" type="button">All matches</button>
+          <button class="filter-button" data-filter="ready" type="button">Ready to cook</button>
+          <button class="filter-button" data-filter="almost" type="button">Almost ready</button>
+        </div>
+        <div class="recipe-list" id="recipe-list"></div>
+        <div class="panel empty-state hidden" id="recipe-empty"><strong>No recipe matches just yet.</strong>Add a few more ingredients to your pantry and check again.</div>
+      </section>
+
+      <section class="content-section hidden" id="shopping-section" aria-labelledby="shopping-heading">
+        <div class="section-head"><div><h2 id="shopping-heading">Shopping list</h2><p>Everything you need to finish a recipe.</p></div><span class="top-count" id="shopping-count">0 items</span></div>
+        <div class="panel">
+          <div class="shopping-list" id="shopping-list"></div>
+          <div class="empty-state hidden" id="shopping-empty"><strong>Your list is looking fresh.</strong>Add missing ingredients from an almost-ready recipe.</div>
+          <div class="shopping-controls hidden" id="shopping-controls">
+            <button class="primary-button" type="button" id="transfer-bought">＋ Move bought to pantry</button>
+            <button class="secondary-button danger-button" type="button" id="clear-shopping">Clear list</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav-button active" data-section="pantry" type="button" aria-current="page"><span class="nav-icon" aria-hidden="true">▤</span><span>Pantry</span></button>
+    <button class="nav-button" data-section="recipes" type="button"><span class="nav-icon" aria-hidden="true">♨</span><span>Recipes</span></button>
+    <button class="nav-button" data-section="shopping" type="button"><span class="nav-icon" aria-hidden="true">☷</span><span>Shopping</span><span class="nav-badge hidden" id="nav-badge">0</span></button>
+  </nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const pantryGroups = {
+        Vegetables: ["Tomato", "Onion", "Garlic", "Spinach", "Bell pepper", "Broccoli", "Potato", "Carrot", "Mushroom", "Zucchini"],
+        Proteins: ["Egg", "Chicken", "Tofu", "Chickpeas", "Black beans", "Tuna", "Salmon"],
+        Dairy: ["Milk", "Cheddar", "Parmesan", "Butter", "Yogurt", "Feta"],
+        Pantry: ["Rice", "Pasta", "Bread", "Tortilla", "Coconut milk", "Lentils"],
+        Spices: ["Olive oil", "Soy sauce", "Cumin", "Paprika", "Chili flakes", "Curry powder", "Lemon"]
+      };
+
+      const recipes = [
+        { id: "tomato-pasta", name: "Garlicky tomato pasta", emoji: "🍝", time: 20, difficulty: "Easy", ingredients: ["Pasta", "Tomato", "Garlic", "Olive oil", "Parmesan"], steps: ["Cook the pasta in salted water until just tender. Save a mug of pasta water.", "Warm olive oil and sliced garlic in a pan. Add chopped tomatoes and simmer until saucy.", "Toss in the pasta with a splash of pasta water. Finish with grated Parmesan."] },
+        { id: "veggie-omelette", name: "Garden veggie omelette", emoji: "🍳", time: 15, difficulty: "Easy", ingredients: ["Egg", "Spinach", "Cheddar", "Butter", "Tomato"], steps: ["Whisk the eggs with a pinch of salt and pepper.", "Soften spinach and chopped tomato in butter, then pour in the eggs.", "Sprinkle with cheddar, fold when just set, and serve warm."] },
+        { id: "chickpea-curry", name: "Cozy chickpea curry", emoji: "🍛", time: 30, difficulty: "Easy", ingredients: ["Chickpeas", "Coconut milk", "Onion", "Garlic", "Curry powder", "Rice"], steps: ["Start the rice according to the package directions.", "Cook diced onion in a little oil until soft. Stir in garlic and curry powder.", "Add chickpeas and coconut milk. Simmer for 15 minutes and serve over rice."] },
+        { id: "fried-rice", name: "Any-day veggie fried rice", emoji: "🥘", time: 18, difficulty: "Easy", ingredients: ["Rice", "Egg", "Carrot", "Peas", "Soy sauce", "Onion"], steps: ["Use chilled cooked rice, or cook rice and spread it out to cool.", "Scramble the egg in a hot oiled pan and set aside.", "Stir-fry onion and carrot, add rice and soy sauce, then fold the egg back in."] },
+        { id: "bean-quesadilla", name: "Crispy bean quesadillas", emoji: "🫓", time: 16, difficulty: "Easy", ingredients: ["Tortilla", "Black beans", "Cheddar", "Tomato", "Onion"], steps: ["Mash the beans lightly and spread them over half of each tortilla.", "Top with cheddar, chopped tomato and onion; fold in half.", "Toast in a dry pan until crisp and golden on both sides."] },
+        { id: "spinach-soup", name: "Creamy spinach soup", emoji: "🥣", time: 25, difficulty: "Easy", ingredients: ["Spinach", "Potato", "Onion", "Milk", "Butter"], steps: ["Soften chopped onion in butter in a saucepan.", "Add diced potato and water to cover. Simmer until the potato is tender.", "Stir in spinach and milk, warm through, then blend until smooth."] },
+        { id: "lemon-chicken", name: "Bright lemon chicken", emoji: "🍋", time: 35, difficulty: "Medium", ingredients: ["Chicken", "Lemon", "Garlic", "Olive oil", "Potato"], steps: ["Heat the oven to 220°C / 425°F. Cut potatoes into bite-size pieces.", "Toss chicken and potatoes with olive oil, garlic, lemon juice, salt and pepper.", "Roast until the chicken is cooked through and potatoes are golden, about 25 minutes."] },
+        { id: "tofu-bowl", name: "Sticky tofu rice bowl", emoji: "🍚", time: 25, difficulty: "Medium", ingredients: ["Tofu", "Rice", "Soy sauce", "Broccoli", "Garlic"], steps: ["Cook rice and cut the tofu into bite-size cubes.", "Pan-fry tofu until golden. Add garlic and soy sauce and let it turn glossy.", "Steam or sauté broccoli and serve everything over rice."] },
+        { id: "lentil-stew", name: "Weeknight lentil stew", emoji: "🍲", time: 40, difficulty: "Easy", ingredients: ["Lentils", "Carrot", "Onion", "Tomato", "Cumin"], steps: ["Soften chopped onion and carrot in a large pot with a little oil.", "Stir in cumin, lentils, chopped tomato and enough water to cover generously.", "Simmer until the lentils are tender, adding water as needed. Season to taste."] },
+        { id: "tuna-melt", name: "Golden tuna melts", emoji: "🥪", time: 12, difficulty: "Easy", ingredients: ["Tuna", "Bread", "Cheddar", "Butter", "Tomato"], steps: ["Drain tuna and mix with a little yogurt or mayonnaise if you have it.", "Pile tuna, sliced tomato and cheddar onto bread.", "Butter the outsides and toast in a pan until crisp and the cheese melts."] }
+      ];
+
+      const storageKeys = { pantry: "pantrychef-pantry-v1", shopping: "pantrychef-shopping-v1" };
+      const readStorage = (key, fallback) => {
+        try {
+          const value = localStorage.getItem(key);
+          return value ? JSON.parse(value) : fallback;
+        } catch (error) {
+          console.error("PantryChef could not read saved data:", error);
+          return fallback;
+        }
+      };
+      let pantry = readStorage(storageKeys.pantry, []);
+      let shopping = readStorage(storageKeys.shopping, []);
+      if (!Array.isArray(pantry)) pantry = [];
+      if (!Array.isArray(shopping)) shopping = [];
+      pantry = pantry.filter(item => item && typeof item.name === "string").map(item => ({ name: item.name.trim(), category: item.category || "Other" })).filter(item => item.name);
+      shopping = shopping.filter(item => item && typeof item.name === "string").map(item => ({ name: item.name.trim(), checked: Boolean(item.checked), source: item.source || "Added to list" })).filter(item => item.name);
+      let activeSection = "pantry";
+      let recipeFilter = "all";
+      let toastTimer;
+
+      const normalize = value => value.trim().toLocaleLowerCase();
+      const pantryHas = name => pantry.some(item => normalize(item.name) === normalize(name));
+      const persist = () => {
+        try {
+          localStorage.setItem(storageKeys.pantry, JSON.stringify(pantry));
+          localStorage.setItem(storageKeys.shopping, JSON.stringify(shopping));
+        } catch (error) {
+          console.error("PantryChef could not save data:", error);
+          showToast("Couldn’t save changes. Check your browser storage.");
+        }
+      };
+      const showToast = message => {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+      };
+      const escapeHtml = value => value.replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+
+      function renderQuickAdd() {
+        const root = document.getElementById("quick-add-groups");
+        root.innerHTML = Object.entries(pantryGroups).map(([category, items]) => `
+          <div class="category-title">${escapeHtml(category)}</div>
+          <div class="chip-wrap">${items.map(name => {
+            const selected = pantryHas(name);
+            return `<button class="ingredient-chip${selected ? " selected" : ""}" type="button" data-ingredient="${escapeHtml(name)}" data-category="${escapeHtml(category)}" aria-pressed="${selected}">${escapeHtml(name)}</button>`;
+          }).join("")}</div>`).join("");
+        root.querySelectorAll(".ingredient-chip").forEach(button => button.addEventListener("click", () => {
+          const name = button.dataset.ingredient;
+          if (pantryHas(name)) removePantryItem(name);
+          else addPantryItem(name, button.dataset.category);
+        }));
+      }
+
+      function renderPantryFilter() {
+        const filter = document.getElementById("pantry-filter");
+        const current = filter.value || "all";
+        const categories = [...new Set(pantry.map(item => item.category))].sort((a, b) => a.localeCompare(b));
+        filter.innerHTML = `<option value="all">All</option>${categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join("")}`;
+        filter.value = categories.includes(current) ? current : "all";
+      }
+
+      function renderPantry() {
+        renderQuickAdd();
+        renderPantryFilter();
+        const query = normalize(document.getElementById("pantry-search").value);
+        const category = document.getElementById("pantry-filter").value;
+        const filtered = pantry.filter(item => (!query || normalize(item.name).includes(query)) && (category === "all" || item.category === category));
+        const list = document.getElementById("pantry-list");
+        list.innerHTML = filtered.map(item => `<span class="pantry-item">${escapeHtml(item.name)}<button class="remove-item" type="button" data-remove="${escapeHtml(item.name)}" aria-label="Remove ${escapeHtml(item.name)}" title="Remove">×</button></span>`).join("");
+        list.querySelectorAll("[data-remove]").forEach(button => button.addEventListener("click", () => removePantryItem(button.dataset.remove)));
+        document.getElementById("pantry-empty").classList.toggle("hidden", pantry.length !== 0 || (query && filtered.length !== 0));
+        if (pantry.length && !filtered.length) list.innerHTML = `<div class="empty-state">No ingredients match your search.</div>`;
+        document.getElementById("pantry-number").textContent = `(${pantry.length})`;
+        document.getElementById("header-count").textContent = `${pantry.length} ${pantry.length === 1 ? "ingredient" : "ingredients"}`;
+      }
+
+      function getMatches() {
+        return recipes.map(recipe => {
+          const missing = recipe.ingredients.filter(name => !pantryHas(name));
+          const match = Math.round((recipe.ingredients.length - missing.length) / recipe.ingredients.length * 100);
+          return { ...recipe, missing, match, ready: missing.length === 0, almost: missing.length > 0 && missing.length <= 3 };
+        }).filter(recipe => recipe.ready || recipe.almost).sort((a, b) => b.match - a.match || a.time - b.time || a.name.localeCompare(b.name));
+      }
+
+      function renderRecipes() {
+        const matches = getMatches();
+        const ready = matches.filter(recipe => recipe.ready).length;
+        const almost = matches.filter(recipe => recipe.almost).length;
+        document.getElementById("ready-stat").textContent = ready;
+        document.getElementById("almost-stat").textContent = almost;
+        const visible = matches.filter(recipe => recipeFilter === "all" || (recipeFilter === "ready" ? recipe.ready : recipe.almost));
+        const list = document.getElementById("recipe-list");
+        list.innerHTML = visible.map(recipe => {
+          const badge = recipe.ready ? "Ready to cook" : `${recipe.missing.length} to go`;
+          const ingredients = recipe.ingredients.map(name => `<span class="recipe-ingredient${recipe.missing.includes(name) ? " missing" : ""}">${recipe.missing.includes(name) ? "＋ " : "✓ "}${escapeHtml(name)}</span>`).join("");
+          const missingButton = recipe.missing.length
+            ? `<button class="secondary-button add-missing" type="button" data-add-missing="${recipe.id}">＋ Add missing to list</button>`
+            : "";
+          return `<article class="recipe-card">
+            <div class="recipe-main">
+              <div class="recipe-top">
+                <div class="recipe-title-group"><span class="recipe-emoji" aria-hidden="true">${recipe.emoji}</span><div><h3 class="recipe-title">${escapeHtml(recipe.name)}</h3><p class="recipe-subtitle">${escapeHtml(recipe.difficulty)} · ${recipe.time} min</p></div></div>
+                <span class="match-badge ${recipe.ready ? "ready" : "almost"}">${badge}</span>
+              </div>
+              <div class="recipe-meta"><span>◷ ${recipe.time} min</span><span>✦ ${escapeHtml(recipe.difficulty)}</span><span>${recipe.ingredients.length - recipe.missing.length}/${recipe.ingredients.length} ingredients</span></div>
+              <div class="match-line"><span>Pantry match</span><span>${recipe.match}%</span></div>
+              <div class="progress-track" role="progressbar" aria-label="Ingredient match" aria-valuenow="${recipe.match}" aria-valuemin="0" aria-valuemax="100"><div class="progress-fill" style="width:${recipe.match}%"></div></div>
+              <div class="recipe-ingredients">${ingredients}</div>
+              <div class="recipe-actions">${missingButton}<button class="secondary-button" type="button" data-details="${recipe.id}" aria-expanded="false">View recipe & steps</button></div>
+            </div>
+            <div class="recipe-details" id="details-${recipe.id}"><h4>How to make it</h4><ol>${recipe.steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}</ol></div>
+          </article>`;
+        }).join("");
+        document.getElementById("recipe-empty").classList.toggle("hidden", visible.length > 0);
+        document.getElementById("recipe-list").classList.toggle("hidden", visible.length === 0);
+        list.querySelectorAll("[data-add-missing]").forEach(button => button.addEventListener("click", () => addMissingToShopping(button.dataset.addMissing)));
+        list.querySelectorAll("[data-details]").forEach(button => button.addEventListener("click", () => {
+          const details = document.getElementById(`details-${button.dataset.details}`);
+          const open = details.classList.toggle("open");
+          button.setAttribute("aria-expanded", String(open));
+          button.textContent = open ? "Hide recipe steps" : "View recipe & steps";
+        }));
+      }
+
+      function renderShopping() {
+        const list = document.getElementById("shopping-list");
+        list.innerHTML = shopping.map((item, index) => `<div class="shopping-item${item.checked ? " checked" : ""}">
+          <input id="shopping-${index}" type="checkbox" data-check="${index}" ${item.checked ? "checked" : ""} aria-label="Mark ${escapeHtml(item.name)} as bought">
+          <label for="shopping-${index}">${escapeHtml(item.name)}<span class="shopping-source">${escapeHtml(item.source)}</span></label>
+          <button class="remove-item" type="button" data-delete-shopping="${index}" aria-label="Remove ${escapeHtml(item.name)} from shopping list">×</button>
+        </div>`).join("");
+        list.querySelectorAll("[data-check]").forEach(input => input.addEventListener("change", () => {
+          shopping[Number(input.dataset.check)].checked = input.checked;
+          persist();
+          renderShopping();
+        }));
+        list.querySelectorAll("[data-delete-shopping]").forEach(button => button.addEventListener("click", () => {
+          shopping.splice(Number(button.dataset.deleteShopping), 1);
+          persist();
+          renderShopping();
+        }));
+        document.getElementById("shopping-empty").classList.toggle("hidden", shopping.length > 0);
+        document.getElementById("shopping-controls").classList.toggle("hidden", shopping.length === 0);
+        const checkedCount = shopping.filter(item => item.checked).length;
+        document.getElementById("shopping-count").textContent = `${shopping.length} ${shopping.length === 1 ? "item" : "items"}${checkedCount ? ` · ${checkedCount} bought` : ""}`;
+        const badge = document.getElementById("nav-badge");
+        badge.textContent = shopping.length;
+        badge.classList.toggle("hidden", shopping.length === 0);
+      }
+
+      function refresh() {
+        persist();
+        renderPantry();
+        renderRecipes();
+        renderShopping();
+      }
+
+      function addPantryItem(name, category = "Other") {
+        const cleaned = name.trim().replace(/\s+/g, " ");
+        if (!cleaned) return;
+        if (pantryHas(cleaned)) {
+          showToast(`${cleaned} is already in your pantry.`);
+          return;
+        }
+        pantry.push({ name: cleaned, category });
+        refresh();
+        showToast(`${cleaned} added to your pantry.`);
+      }
+
+      function removePantryItem(name) {
+        pantry = pantry.filter(item => normalize(item.name) !== normalize(name));
+        refresh();
+        showToast(`${name} removed from your pantry.`);
+      }
+
+      function addMissingToShopping(recipeId) {
+        const recipe = recipes.find(item => item.id === recipeId);
+        if (!recipe) return;
+        const missing = recipe.ingredients.filter(name => !pantryHas(name));
+        let added = 0;
+        missing.forEach(name => {
+          if (!shopping.some(item => normalize(item.name) === normalize(name))) {
+            shopping.push({ name, checked: false, source: recipe.name });
+            added++;
+          }
+        });
+        persist();
+        renderShopping();
+        showToast(added ? `${added} missing ${added === 1 ? "ingredient" : "ingredients"} added to your list.` : "Those ingredients are already on your list.");
+      }
+
+      function setSection(section) {
+        activeSection = section;
+        ["pantry", "recipes", "shopping"].forEach(name => document.getElementById(`${name}-section`).classList.toggle("hidden", name !== section));
+        document.querySelectorAll(".nav-button").forEach(button => {
+          const active = button.dataset.section === section;
+          button.classList.toggle("active", active);
+          if (active) button.setAttribute("aria-current", "page");
+          else button.removeAttribute("aria-current");
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      document.getElementById("custom-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const input = document.getElementById("custom-ingredient");
+        if (input.value.trim()) {
+          addPantryItem(input.value, "Other");
+          input.value = "";
+        } else {
+          input.focus();
+        }
+      });
+      document.getElementById("pantry-search").addEventListener("input", renderPantry);
+      document.getElementById("pantry-filter").addEventListener("change", renderPantry);
+      document.getElementById("recipe-filters").addEventListener("click", event => {
+        const button = event.target.closest("[data-filter]");
+        if (!button) return;
+        recipeFilter = button.dataset.filter;
+        document.querySelectorAll(".filter-button").forEach(filter => filter.classList.toggle("active", filter === button));
+        renderRecipes();
+      });
+      document.querySelectorAll(".nav-button").forEach(button => button.addEventListener("click", () => setSection(button.dataset.section)));
+      document.getElementById("transfer-bought").addEventListener("click", () => {
+        const bought = shopping.filter(item => item.checked);
+        if (!bought.length) {
+          showToast("Check off bought items first.");
+          return;
+        }
+        let transferred = 0;
+        bought.forEach(item => {
+          if (!pantryHas(item.name)) {
+            const group = Object.entries(pantryGroups).find(([, items]) => items.some(name => normalize(name) === normalize(item.name)));
+            pantry.push({ name: item.name, category: group ? group[0] : "Other" });
+            transferred++;
+          }
+        });
+        shopping = shopping.filter(item => !item.checked);
+        refresh();
+        showToast(`${transferred} ${transferred === 1 ? "item" : "items"} moved to your pantry.`);
+      });
+      document.getElementById("clear-shopping").addEventListener("click", () => {
+        if (!shopping.length) return;
+        shopping = [];
+        refresh();
+        showToast("Shopping list cleared.");
+      });
+
+      renderPantry();
+      renderRecipes();
+      renderShopping();
+    })();
+  </script>
+</body>
+</html>
