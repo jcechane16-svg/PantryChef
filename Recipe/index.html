@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f7f8f4">
   <meta name="description" content="Make more of what you already have. Find recipes, manage your pantry, and build a smart shopping list with PantryChef.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PantryChef">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
   <title>PantryChef — Make more of what you have</title>
   <style>
     :root {
@@ -12,37 +19,98 @@
       --ink: #17231d;
       --muted: #718078;
       --paper: #f7f8f4;
-      --card: #fff;
+      --card: #ffffff;
+      --surface-subtle: #fbfcfa;
+      --surface-chip: #ffffff;
+      --surface-hover: #f5faf5;
+      --surface-pantry: #f3f8f3;
+      --surface-details: #fcfdfa;
+      --surface-ingredient: #f1f5f1;
+      --surface-emoji: #f5f3e9;
+      --text-chip: #3f5146;
+      --text-secondary: #647269;
+      --text-recipe: #536157;
+      --line-pantry: #dce9de;
+      --line-nav: #e7ebe5;
+      --nav-surface: rgba(255,255,255,.96);
       --line: #e9ede7;
       --green: #246b4b;
       --green-dark: #1c563c;
       --green-soft: #eaf3eb;
       --orange: #ee9b55;
       --orange-soft: #fff2e5;
+      --orange-text: #965019;
       --red: #c94b42;
       --red-soft: #fff0ed;
+      --text-muted: #829087;
+      --text-low: #8a968e;
+      --hero-copy: #e0eee4;
+      --focus: #a3d0b2;
+      --nav-muted: #87928a;
+      --progress-track: #edf0ec;
+      --progress-fill: #59a777;
       --shadow: 0 8px 28px rgba(29, 54, 38, .055);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --ink: #edf4ee;
+      --muted: #a0afa4;
+      --paper: #111814;
+      --card: #1a241e;
+      --surface-subtle: #19231d;
+      --surface-chip: #202c24;
+      --surface-hover: #26372b;
+      --surface-pantry: #213128;
+      --surface-details: #18221c;
+      --surface-ingredient: #28362c;
+      --surface-emoji: #383729;
+      --text-chip: #d4e4d7;
+      --text-secondary: #b4c1b7;
+      --text-recipe: #d0ddd2;
+      --line-pantry: #344b3b;
+      --line-nav: #2a382f;
+      --nav-surface: rgba(24,34,28,.96);
+      --line: #2a382f;
+      --green: #2f8058;
+      --green-dark: #b4e2c0;
+      --green-soft: #243c2e;
+      --orange-soft: #453522;
+      --orange-text: #ffd09b;
+      --red: #ff9187;
+      --red-soft: #432926;
+      --text-muted: #a0afa4;
+      --text-low: #a0afa4;
+      --hero-copy: #e0eee4;
+      --focus: #80c99a;
+      --nav-muted: #a0afa4;
+      --progress-track: #303d34;
+      --progress-fill: #75c992;
+      --shadow: 0 8px 28px rgba(0, 0, 0, .16);
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html { min-height: 100%; scroll-behavior: smooth; }
     body {
       margin: 0; min-height: 100vh; background: var(--paper); color: var(--ink);
       user-select: none; -webkit-user-select: none; padding-bottom: calc(90px + env(safe-area-inset-bottom));
+      transition: background-color .2s ease, color .2s ease;
     }
     button, input { font: inherit; }
     button { color: inherit; }
-    button:focus-visible, input:focus-visible { outline: 3px solid #a3d0b2; outline-offset: 2px; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
     .app-shell { max-width: 760px; margin: 0 auto; padding: 0 18px; }
     .topbar { display: flex; align-items: center; justify-content: space-between; padding: 19px 0 15px; }
     .brand { display: flex; gap: 10px; align-items: center; font-weight: 850; letter-spacing: -.65px; font-size: 20px; }
     .brand-mark { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 13px; background: var(--green); color: white; font-size: 21px; }
-    .top-count { padding: 8px 11px; border-radius: 999px; background: white; border: 1px solid var(--line); color: var(--muted); font-size: 12px; font-weight: 700; }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .theme-toggle, .settings-button { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 13px; background: var(--card); color: var(--ink); font-size: 18px; cursor: pointer; transition: transform .15s, background-color .2s; }
+    .theme-toggle:active, .settings-button:active { transform: scale(.94); }
+    .top-count { padding: 8px 11px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); font-size: 12px; font-weight: 700; }
     .hero { position: relative; overflow: hidden; background: var(--green); color: white; border-radius: 24px; padding: 24px 22px 23px; box-shadow: var(--shadow); }
     .hero::after { content: "🥬"; position: absolute; right: 21px; bottom: -12px; font-size: 92px; opacity: .17; transform: rotate(-15deg); pointer-events: none; }
     .eyebrow { margin: 0 0 9px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; opacity: .78; }
     .hero h1 { position: relative; z-index: 1; max-width: 390px; margin: 0; font-size: clamp(27px, 7vw, 36px); line-height: 1.08; letter-spacing: -1.3px; }
-    .hero p:last-child { position: relative; z-index: 1; max-width: 310px; margin: 11px 0 0; color: #e0eee4; font-size: 13px; line-height: 1.5; }
+    .hero p:last-child { position: relative; z-index: 1; max-width: 310px; margin: 11px 0 0; color: var(--hero-copy); font-size: 13px; line-height: 1.5; }
     .content-section { padding-top: 24px; }
     .section-head { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin: 0 1px 13px; }
     .section-head h2 { margin: 0; font-size: 19px; letter-spacing: -.45px; }
@@ -52,75 +120,89 @@
     .category-title { margin: 15px 0 8px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
     .category-title:first-child { margin-top: 0; }
     .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
-    .ingredient-chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 11px; background: #fff; color: #3f5146; font-size: 12px; font-weight: 650; cursor: pointer; transition: .16s ease; }
-    .ingredient-chip:hover { border-color: #a5c5ad; background: #f5faf5; }
-    .ingredient-chip.selected { color: var(--green-dark); border-color: #c9dfce; background: var(--green-soft); }
+    .ingredient-chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 11px; background: var(--surface-chip); color: var(--text-chip); font-size: 12px; font-weight: 650; cursor: pointer; transition: .16s ease; }
+    .ingredient-chip:hover { border-color: var(--line-pantry); background: var(--surface-hover); }
+    .ingredient-chip.selected { color: var(--green-dark); border-color: var(--line-pantry); background: var(--green-soft); }
     .ingredient-chip.selected::before { content: "✓"; font-weight: 900; }
     .custom-form { display: flex; gap: 8px; margin-top: 17px; }
-    .field { min-width: 0; width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; background: #fbfcfa; color: var(--ink); font-size: 13px; outline: none; user-select: text; -webkit-user-select: text; }
-    .field::placeholder { color: #9aa59e; }
+    .field { min-width: 0; width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; background: var(--surface-subtle); color: var(--ink); font-size: 13px; outline: none; user-select: text; -webkit-user-select: text; }
+    .field::placeholder { color: var(--muted); }
     .primary-button { border: 0; border-radius: 12px; padding: 0 16px; min-height: 44px; background: var(--green); color: white; font-size: 12px; font-weight: 800; white-space: nowrap; cursor: pointer; transition: background .15s, transform .15s; }
     .primary-button:hover { background: var(--green-dark); }
     .primary-button:active, .secondary-button:active, .ingredient-chip:active { transform: scale(.97); }
     .toolbar { display: flex; gap: 9px; margin-bottom: 12px; }
     .search-wrap { position: relative; flex: 1; }
-    .search-wrap .field { padding-left: 36px; background: white; }
-    .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #829087; pointer-events: none; font-size: 14px; }
-    .select-field { border: 1px solid var(--line); border-radius: 12px; padding: 0 11px; background: white; color: #44564a; font-size: 12px; font-weight: 700; }
+    .search-wrap .field { padding-left: 36px; background: var(--card); }
+    .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 14px; }
+    .select-field { border: 1px solid var(--line); border-radius: 12px; padding: 0 11px; background: var(--card); color: var(--text-chip); font-size: 12px; font-weight: 700; }
     .pantry-list { display: flex; flex-wrap: wrap; gap: 8px; }
-    .pantry-item { display: flex; align-items: center; gap: 7px; border: 1px solid #dce9de; border-radius: 999px; background: #f3f8f3; padding: 7px 8px 7px 11px; font-size: 12px; font-weight: 650; }
-    .remove-item { width: 22px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #7f8d84; cursor: pointer; font-size: 16px; }
-    .remove-item:hover { background: #e4eee5; color: var(--red); }
+    .pantry-item { display: flex; align-items: center; gap: 7px; border: 1px solid var(--line-pantry); border-radius: 999px; background: var(--surface-pantry); padding: 7px 8px 7px 11px; font-size: 12px; font-weight: 650; }
+    .remove-item { width: 22px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; font-size: 16px; }
+    .remove-item:hover { background: var(--surface-hover); color: var(--red); }
     .empty-state { padding: 20px 10px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.5; }
     .empty-state strong { display: block; margin-bottom: 4px; color: var(--ink); font-size: 14px; }
     .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0 3px; }
-    .stat-card { border: 1px solid var(--line); border-radius: 15px; background: white; padding: 13px 14px; }
+    .stat-card { border: 1px solid var(--line); border-radius: 15px; background: var(--card); padding: 13px 14px; }
     .stat-number { display: block; font-size: 22px; font-weight: 850; letter-spacing: -.8px; }
     .stat-label { color: var(--muted); font-size: 11px; font-weight: 650; }
     .filter-row { display: flex; gap: 7px; overflow-x: auto; padding: 2px 1px 10px; scrollbar-width: none; }
     .filter-row::-webkit-scrollbar { display: none; }
-    .filter-button { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; background: white; color: #637168; font-size: 11px; font-weight: 750; cursor: pointer; }
+    .filter-button { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; background: var(--card); color: var(--muted); font-size: 11px; font-weight: 750; cursor: pointer; }
     .filter-button.active { border-color: var(--green); background: var(--green); color: white; }
     .recipe-list { display: grid; gap: 12px; }
-    .recipe-card { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: white; box-shadow: var(--shadow); }
+    .recipe-card { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--card); box-shadow: var(--shadow); }
     .recipe-main { padding: 15px; }
     .recipe-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 9px; }
     .recipe-title-group { display: flex; gap: 10px; align-items: center; min-width: 0; }
-    .recipe-emoji { width: 43px; height: 43px; flex: 0 0 43px; display: grid; place-items: center; border-radius: 14px; background: #f5f3e9; font-size: 23px; }
+    .recipe-emoji { width: 43px; height: 43px; flex: 0 0 43px; display: grid; place-items: center; border-radius: 14px; background: var(--surface-emoji); font-size: 23px; }
     .recipe-title { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.3px; }
     .recipe-subtitle { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
     .match-badge { flex: 0 0 auto; border-radius: 999px; padding: 6px 8px; font-size: 10px; font-weight: 850; white-space: nowrap; }
     .match-badge.ready { background: var(--green-soft); color: var(--green-dark); }
-    .match-badge.almost { background: var(--orange-soft); color: #965019; }
-    .recipe-meta { display: flex; gap: 13px; margin: 13px 0 11px; color: #647269; font-size: 11px; font-weight: 650; }
-    .match-line { display: flex; justify-content: space-between; margin-bottom: 6px; color: #6c7a70; font-size: 10px; font-weight: 700; }
-    .progress-track { height: 5px; overflow: hidden; border-radius: 9px; background: #edf0ec; }
-    .progress-fill { height: 100%; border-radius: inherit; background: #59a777; }
+    .match-badge.almost { background: var(--orange-soft); color: var(--orange-text); }
+    .recipe-meta { display: flex; gap: 13px; margin: 13px 0 11px; color: var(--text-secondary); font-size: 11px; font-weight: 650; }
+    .match-line { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 700; }
+    .progress-track { height: 5px; overflow: hidden; border-radius: 9px; background: var(--progress-track); }
+    .progress-fill { height: 100%; border-radius: inherit; background: var(--progress-fill); }
     .recipe-ingredients { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
-    .recipe-ingredient { border-radius: 7px; padding: 5px 7px; background: #f1f5f1; color: #536157; font-size: 10px; font-weight: 650; }
+    .recipe-ingredient { border-radius: 7px; padding: 5px 7px; background: var(--surface-ingredient); color: var(--text-recipe); font-size: 10px; font-weight: 650; }
     .recipe-ingredient.missing { background: var(--red-soft); color: var(--red); }
     .recipe-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-    .secondary-button { display: inline-flex; justify-content: center; align-items: center; min-height: 39px; border: 1px solid var(--line); border-radius: 11px; padding: 0 12px; background: white; color: #435449; font-size: 11px; font-weight: 750; cursor: pointer; }
-    .secondary-button.add-missing { border-color: #cce0d0; background: #f3f8f3; color: var(--green-dark); }
-    .recipe-details { display: none; border-top: 1px solid var(--line); background: #fcfdfa; padding: 13px 16px 16px; }
+    .secondary-button { display: inline-flex; justify-content: center; align-items: center; min-height: 39px; border: 1px solid var(--line); border-radius: 11px; padding: 0 12px; background: var(--card); color: var(--text-chip); font-size: 11px; font-weight: 750; cursor: pointer; }
+    .secondary-button.add-missing { border-color: var(--line-pantry); background: var(--surface-pantry); color: var(--green-dark); }
+    .recipe-details { display: none; border-top: 1px solid var(--line); background: var(--surface-details); padding: 13px 16px 16px; }
     .recipe-details.open { display: block; }
     .recipe-details h4 { margin: 0 0 8px; font-size: 12px; }
-    .recipe-details ol { margin: 0; padding-left: 19px; color: #59675e; font-size: 12px; line-height: 1.65; }
+    .recipe-details ol { margin: 0; padding-left: 19px; color: var(--text-secondary); font-size: 12px; line-height: 1.65; }
     .shopping-list { display: grid; gap: 8px; }
-    .shopping-item { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 13px; background: white; padding: 11px 12px; }
+    .shopping-item { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 13px; background: var(--card); padding: 11px 12px; }
     .shopping-item input { width: 19px; height: 19px; accent-color: var(--green); cursor: pointer; }
     .shopping-item label { flex: 1; font-size: 13px; font-weight: 650; cursor: pointer; }
-    .shopping-item.checked label { color: #8b968f; text-decoration: line-through; }
-    .shopping-source { display: block; margin-top: 3px; color: #8a968e; font-size: 10px; font-weight: 500; }
+    .shopping-item.checked label { color: var(--muted); text-decoration: line-through; }
+    .shopping-source { display: block; margin-top: 3px; color: var(--text-low); font-size: 10px; font-weight: 500; }
     .shopping-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
     .danger-button { color: var(--red); }
     .toast { position: fixed; z-index: 20; left: 50%; bottom: calc(93px + env(safe-area-inset-bottom)); transform: translate(-50%, 12px); max-width: calc(100vw - 36px); border-radius: 999px; padding: 11px 16px; background: #203c2c; color: white; font-size: 12px; font-weight: 700; box-shadow: 0 8px 25px #12251936; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; white-space: nowrap; }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
-    .bottom-nav { position: fixed; z-index: 10; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(3, 1fr); padding: 8px max(13px, calc((100vw - 560px) / 2)) calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid #e7ebe5; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); }
-    .nav-button { position: relative; display: grid; justify-items: center; gap: 3px; min-height: 54px; border: 0; border-radius: 13px; background: transparent; color: #87928a; font-size: 10px; font-weight: 750; cursor: pointer; }
+    .bottom-nav { position: fixed; z-index: 10; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(3, 1fr); padding: 8px max(13px, calc((100vw - 560px) / 2)) calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line-nav); background: var(--nav-surface); backdrop-filter: blur(14px); }
+    .nav-button { position: relative; display: grid; justify-items: center; gap: 3px; min-height: 54px; border: 0; border-radius: 13px; background: transparent; color: var(--nav-muted); font-size: 10px; font-weight: 750; cursor: pointer; }
     .nav-button.active { color: var(--green); }
     .nav-icon { font-size: 19px; line-height: 1; }
-    .nav-badge { position: absolute; top: -1px; left: calc(50% + 7px); min-width: 16px; height: 16px; display: grid; place-items: center; border: 2px solid white; border-radius: 99px; padding: 0 3px; background: var(--orange); color: white; font-size: 8px; }
+    .nav-badge { position: absolute; top: -1px; left: calc(50% + 7px); min-width: 16px; height: 16px; display: grid; place-items: center; border: 2px solid var(--card); border-radius: 99px; padding: 0 3px; background: var(--orange); color: white; font-size: 8px; }
+    .settings-dialog { width: min(440px, calc(100% - 32px)); max-height: min(82vh, 680px); overflow: auto; border: 1px solid var(--line); border-radius: 22px; padding: 0; background: var(--paper); color: var(--ink); box-shadow: 0 24px 80px rgba(0,0,0,.28); }
+    .settings-dialog::backdrop { background: rgba(9,17,12,.55); backdrop-filter: blur(3px); }
+    .settings-content { padding: 20px; }
+    .settings-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+    .settings-header h2 { margin: 0; font-size: 21px; letter-spacing: -.5px; }
+    .settings-header p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .settings-close { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 11px; background: var(--card); color: var(--ink); font-size: 20px; cursor: pointer; }
+    .settings-group { margin-top: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 15px; }
+    .settings-group h3 { margin: 0; font-size: 14px; }
+    .settings-group > p { margin: 5px 0 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .settings-label { display: block; margin: 0 0 7px; color: var(--text-secondary); font-size: 11px; font-weight: 750; }
+    .settings-select { width: 100%; min-height: 43px; border: 1px solid var(--line); border-radius: 11px; padding: 0 11px; background: var(--surface-subtle); color: var(--ink); font-size: 13px; }
+    .install-status { margin: 11px 0 0 !important; padding: 10px 11px; border-radius: 10px; background: var(--surface-pantry); color: var(--text-secondary) !important; font-size: 11px !important; }
+    .settings-version { margin: 15px 2px 0; color: var(--muted); text-align: center; font-size: 10px; }
     .hidden { display: none !important; }
     @media (min-width: 640px) {
       .app-shell { padding: 0 28px; }
@@ -136,7 +218,11 @@
   <div class="app-shell">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true">♨</span><span>PantryChef</span></div>
-      <div class="top-count" id="header-count">0 ingredients</div>
+      <div class="top-actions">
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode">☾</button>
+        <button class="settings-button" id="open-settings" type="button" aria-label="Open settings" title="Settings">⚙</button>
+        <div class="top-count" id="header-count">0 ingredients</div>
+      </div>
     </header>
 
     <main>
@@ -205,6 +291,31 @@
     <button class="nav-button" data-section="recipes" type="button"><span class="nav-icon" aria-hidden="true">♨</span><span>Recipes</span></button>
     <button class="nav-button" data-section="shopping" type="button"><span class="nav-icon" aria-hidden="true">☷</span><span>Shopping</span><span class="nav-badge hidden" id="nav-badge">0</span></button>
   </nav>
+  <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-heading">
+    <div class="settings-content">
+      <div class="settings-header">
+        <div><h2 id="settings-heading">Settings</h2><p>Make PantryChef feel like yours.</p></div>
+        <button class="settings-close" id="close-settings" type="button" aria-label="Close settings">×</button>
+      </div>
+      <section class="settings-group" aria-labelledby="appearance-heading">
+        <h3 id="appearance-heading">Appearance</h3>
+        <p>Choose a theme or follow your device setting.</p>
+        <label class="settings-label" for="settings-theme">Color theme</label>
+        <select class="settings-select" id="settings-theme">
+          <option value="system">Use device setting</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </section>
+      <section class="settings-group" aria-labelledby="install-heading">
+        <h3 id="install-heading">Install PantryChef</h3>
+        <p>Put your kitchen companion on your home screen for quick access and an app-like experience.</p>
+        <button class="primary-button" id="install-app" type="button">Install PantryChef</button>
+        <p class="install-status" id="install-status" role="status" aria-live="polite">Checking install options…</p>
+      </section>
+      <p class="settings-version">PantryChef · Your kitchen, made inspiring.</p>
+    </div>
+  </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -232,7 +343,7 @@
         { id: "tuna-melt", name: "Golden tuna melts", emoji: "🥪", time: 12, difficulty: "Easy", ingredients: ["Tuna", "Bread", "Cheddar", "Butter", "Tomato"], steps: ["Drain tuna and mix with a little yogurt or mayonnaise if you have it.", "Pile tuna, sliced tomato and cheddar onto bread.", "Butter the outsides and toast in a pan until crisp and the cheese melts."] }
       ];
 
-      const storageKeys = { pantry: "pantrychef-pantry-v1", shopping: "pantrychef-shopping-v1" };
+      const storageKeys = { pantry: "pantrychef-pantry-v1", shopping: "pantrychef-shopping-v1", theme: "pantrychef-theme-v1" };
       const readStorage = (key, fallback) => {
         try {
           const value = localStorage.getItem(key);
@@ -248,6 +359,10 @@
       if (!Array.isArray(shopping)) shopping = [];
       pantry = pantry.filter(item => item && typeof item.name === "string").map(item => ({ name: item.name.trim(), category: item.category || "Other" })).filter(item => item.name);
       shopping = shopping.filter(item => item && typeof item.name === "string").map(item => ({ name: item.name.trim(), checked: Boolean(item.checked), source: item.source || "Added to list" })).filter(item => item.name);
+      const savedTheme = readStorage(storageKeys.theme, null);
+      let themeMode = savedTheme === "dark" || savedTheme === "light" ? savedTheme : "system";
+      const systemTheme = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+      let installPrompt = null;
       let activeSection = "pantry";
       let recipeFilter = "all";
       let toastTimer;
@@ -271,6 +386,59 @@
         toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
       };
       const escapeHtml = value => value.replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+
+      function applyTheme() {
+        const theme = themeMode === "system" ? (systemTheme && systemTheme.matches ? "dark" : "light") : themeMode;
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#111814" : "#f7f8f4";
+        const button = document.getElementById("theme-toggle");
+        const nextMode = theme === "dark" ? "light" : "dark";
+        button.textContent = theme === "dark" ? "☀" : "☾";
+        button.setAttribute("aria-label", `Switch to ${nextMode} mode`);
+        button.title = `Switch to ${nextMode} mode`;
+        document.getElementById("settings-theme").value = themeMode;
+      }
+
+      function setThemeMode(mode) {
+        themeMode = mode;
+        try {
+          localStorage.setItem(storageKeys.theme, JSON.stringify(themeMode));
+        } catch (error) {
+          console.error("PantryChef could not save the theme preference:", error);
+          showToast("Theme changed, but the preference could not be saved.");
+        }
+        applyTheme();
+      }
+
+      function isStandalone() {
+        return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+      }
+
+      function updateInstallStatus() {
+        const status = document.getElementById("install-status");
+        const button = document.getElementById("install-app");
+        if (isStandalone()) {
+          status.textContent = "PantryChef is installed on this device.";
+          button.textContent = "App installed";
+          button.disabled = true;
+        } else {
+          button.disabled = false;
+          button.textContent = installPrompt ? "Install PantryChef" : "Show install steps";
+          if (installPrompt) {
+            status.textContent = "Ready to install. Choose Install PantryChef to add it to your device.";
+          } else if (location.protocol === "file:") {
+            status.textContent = "Install is unavailable from a local file. Open the published HTTPS site in your browser to install.";
+          } else if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            status.textContent = "In Safari, tap Share, then choose Add to Home Screen.";
+          } else if (/Android/i.test(navigator.userAgent)) {
+            status.textContent = "In Chrome, open ⋮ and choose Install app or Add to Home screen.";
+          } else if (location.protocol !== "https:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+            status.textContent = "App installation requires a secure HTTPS connection. Open PantryChef from its HTTPS address to install.";
+          } else {
+            status.textContent = "Use your browser menu to install PantryChef or create an app shortcut. On Android Chrome, choose ⋮ → Install app.";
+          }
+        }
+      }
 
       function renderQuickAdd() {
         const root = document.getElementById("quick-add-groups");
@@ -449,6 +617,46 @@
       });
       document.getElementById("pantry-search").addEventListener("input", renderPantry);
       document.getElementById("pantry-filter").addEventListener("change", renderPantry);
+      document.getElementById("open-settings").addEventListener("click", () => {
+        updateInstallStatus();
+        document.getElementById("settings-dialog").showModal();
+      });
+      document.getElementById("close-settings").addEventListener("click", () => document.getElementById("settings-dialog").close());
+      document.getElementById("settings-dialog").addEventListener("click", event => {
+        if (event.target === event.currentTarget) event.currentTarget.close();
+      });
+      document.getElementById("settings-theme").addEventListener("change", event => setThemeMode(event.target.value));
+      document.getElementById("install-app").addEventListener("click", async () => {
+        if (!installPrompt) {
+          updateInstallStatus();
+          return;
+        }
+        const promptEvent = installPrompt;
+        installPrompt = null;
+        await promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
+        document.getElementById("install-status").textContent = choice.outcome === "accepted"
+          ? "Thanks for installing PantryChef!"
+          : "Installation was cancelled. You can try again from Settings.";
+        updateInstallStatus();
+      });
+      window.addEventListener("beforeinstallprompt", event => {
+        event.preventDefault();
+        installPrompt = event;
+        updateInstallStatus();
+      });
+      window.addEventListener("appinstalled", () => {
+        installPrompt = null;
+        updateInstallStatus();
+      });
+      document.getElementById("theme-toggle").addEventListener("click", () => {
+        setThemeMode(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+      });
+      if (systemTheme) {
+        systemTheme.addEventListener("change", () => {
+          if (themeMode === "system") applyTheme();
+        });
+      }
       document.getElementById("recipe-filters").addEventListener("click", event => {
         const button = event.target.closest("[data-filter]");
         if (!button) return;
@@ -482,6 +690,14 @@
         showToast("Shopping list cleared.");
       });
 
+      applyTheme();
+      updateInstallStatus();
+      if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+        navigator.serviceWorker.register("./sw.js").catch(error => {
+          console.error("PantryChef could not register its offline cache:", error);
+          document.getElementById("install-status").textContent += " Offline caching could not be enabled; reload after checking your connection.";
+        });
+      }
       renderPantry();
       renderRecipes();
       renderShopping();
